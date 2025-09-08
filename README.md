@@ -1,1 +1,1 @@
-# mlbhackathon2025
+MLB HACKATHON 2025 APP
