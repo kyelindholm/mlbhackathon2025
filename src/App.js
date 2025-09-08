@@ -1,14 +1,14 @@
 import './App.css';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, Cell } from 'recharts';
 import Papa from 'papaparse';
 import { Download } from 'lucide-react';
 
 const FEATURES = [
   'Scores', 'Video Streaming', 'Audio Streaming', 'Live Activities', 'Gameday/Gamecast',
-  'Real Time Highlights', 'Special Events', 'Video On Demand', 'Basic Stats', 'Advanced Stats',
-  'Player Info (Stats)', 'Standings', 'Game Schedule', 'News', 'Prospect content',
+  'Real Time Highlights', 'Special Events\n(HRD, ASG, Postseason)', 'Video On Demand', 'Basic Stats', 'Advanced Stats',
+  'Player Info (Stats)', 'Standings', 'Schedule', 'News', 'Prospect Content',
   'Favorite Team', 'Follow Players', 'Follow Teams', 'Podcasts', 'Gaming (FTP)', 'Betting',
   'Club Information', 'Game Notifications', 'Social Content', 'Search', 'Vertical Video Explore',
   'Fan Content (Community)', 'Japanese Support'
@@ -26,68 +26,202 @@ const SCORE_MAP = { Bad: 0, Good: 1, Great: 2 };
 const sampleData = [
   {
     app: 'MLB',
-    // random example values — replace by ingested data
     Scores: 'Great',
-    'Video Streaming': 'Good',
-    'Audio Streaming': 'Good',
+    'Video Streaming': 'Great',
+    'Audio Streaming': 'Great',
     'Live Activities': 'Good',
     'Gameday/Gamecast': 'Great',
     'Real Time Highlights': 'Great',
-    'Special Events': 'Good',
-    'Video On Demand': 'Good',
+    'Special Events\n(HRD, ASG, Postseason)': 'Great',
+    'Video On Demand': 'Great',
     'Basic Stats': 'Great',
-    'Advanced Stats': 'Good',
+    'Advanced Stats': 'Great',
     'Player Info (Stats)': 'Great',
     'Standings': 'Great',
-    'Game Schedule': 'Great',
+    'Schedule': 'Great',
     'News': 'Good',
-    'Prospect content': 'Good',
+    'Prospect Content': 'Great',
     'Favorite Team': 'Great',
-    'Follow Players': 'Good',
+    'Follow Players': 'Great',
     'Follow Teams': 'Good',
-    'Podcasts': 'Good',
-    'Gaming (FTP)': 'Bad',
-    'Betting': 'Good',
-    'Club Information': 'Good',
-    'Game Notifications': 'Great',
-    'Social Content': 'Good',
-    'Search': 'Good',
-    'Vertical Video Explore': 'Good',
-    'Fan Content (Community)': 'Good',
+    'Podcasts': 'Bad',
+    'Gaming (FTP)': 'Good',
+    'Betting': 'Bad',
+    'Club Information': 'Great',
+    'Game Notifications': 'Good',
+    'Player Notifications': 'Good',
+    'News Notifications': 'Great',
+    'Social Content': 'Bad',
+    'Search': 'Bad',
+    'Vertical Video Explore': 'Bad',
+    'Fan Content (Community)': 'Bad',
     'Japanese Support': 'Bad'
   },
   {
     app: 'ESPN',
     Scores: 'Great',
-    'Video Streaming': 'Great',
-    'Audio Streaming': 'Good',
+    'Video Streaming': 'Bad',
+    'Audio Streaming': 'Bad',
+    'Live Activities': 'Great',
+    'Gameday/Gamecast': 'Good',
+    'Real Time Highlights': 'Bad',
+    'Special Events\n(HRD, ASG, Postseason)': 'Good',
+    'Video On Demand': 'Good',
+    'Basic Stats': 'Great',
+    'Advanced Stats': 'Bad',
+    'Player Info (Stats)': 'Great',
+    'Standings': 'Great',
+    'Schedule': 'Great',
+    'News': 'Good',
+    'Prospect Content': 'Bad',
+    'Favorite Team': 'Great',
+    'Follow Players': 'Good',
+    'Follow Teams': 'Good',
+    'Podcasts': 'Good',
+    'Gaming (FTP)': 'Bad',
+    'Betting': 'Great',
+    'Club Information': 'Good',
+    'Game Notifications': 'Good',
+    'Player Notifications': 'Bad',
+    'News Notifications': 'Great',
+    'Social Content': 'Bad',
+    'Search': 'Good',
+    'Vertical Video Explore': 'Good',
+    'Fan Content (Community)': 'Bad',
+    'Japanese Support': 'Good'
+  },
+  {
+    app: 'theScore',
+    Scores: 'Great',
+    'Video Streaming': 'Bad',
+    'Audio Streaming': 'Bad',
     'Live Activities': 'Good',
-    'Gameday/Gamecast': 'Bad',
-    'Real Time Highlights': 'Good',
-    'Special Events': 'Great',
-    'Video On Demand': 'Great',
+    'Gameday/Gamecast': 'Good',
+    'Real Time Highlights': 'Bad',
+    'Special Events\n(HRD, ASG, Postseason)': 'Good',
+    'Video On Demand': 'Good',
     'Basic Stats': 'Good',
     'Advanced Stats': 'Bad',
-    'Player Info (Stats)': 'Good',
+    'Player Info (Stats)': 'Great',
     'Standings': 'Great',
-    'Game Schedule': 'Great',
-    'News': 'Great',
-    'Prospect content': 'Bad',
-    'Favorite Team': 'Good',
-    'Follow Players': 'Bad',
-    'Follow Teams': 'Good',
-    'Podcasts': 'Great',
-    'Gaming (FTP)': 'Good',
-    'Betting': 'Great',
-    'Club Information': 'Bad',
-    'Game Notifications': 'Good',
-    'Social Content': 'Great',
-    'Search': 'Great',
-    'Vertical Video Explore': 'Great',
+    'Schedule': 'Great',
+    'News': 'Good',
+    'Prospect Content': 'Bad',
+    'Favorite Team': 'Great',
+    'Follow Players': 'Great',
+    'Follow Teams': 'Great',
+    'Podcasts': 'Bad',
+    'Gaming (FTP)': 'Bad',
+    'Betting': 'Good',
+    'Club Information': 'Good',
+    'Game Notifications': 'Great',
+    'Player Notifications': 'Great',
+    'News Notifications': 'Great',
+    'Social Content': 'Good',
+    'Search': 'Good',
+    'Vertical Video Explore': 'Bad',
     'Fan Content (Community)': 'Good',
     'Japanese Support': 'Good'
   },
-  // ... add other sample apps as needed
+  {
+    app: 'Real Sports',
+    Scores: 'Great',
+    'Video Streaming': 'Bad',
+    'Audio Streaming': 'Bad',
+    'Live Activities': 'Bad',
+    'Gameday/Gamecast': 'Good',
+    'Real Time Highlights': 'Bad',
+    'Special Events\n(HRD, ASG, Postseason)': 'Bad',
+    'Video On Demand': 'Good',
+    'Basic Stats': 'Good',
+    'Advanced Stats': 'Bad',
+    'Player Info (Stats)': 'Great',
+    'Standings': 'Good',
+    'Schedule': 'Great',
+    'News': 'Bad',
+    'Prospect Content': 'Bad',
+    'Favorite Team': 'Good',
+    'Follow Players': 'Good',
+    'Follow Teams': 'Good',
+    'Podcasts': 'Bad',
+    'Gaming (FTP)': 'Good',
+    'Betting': 'Bad',
+    'Club Information': 'Good',
+    'Game Notifications': 'Great',
+    'Player Notifications': 'Great',
+    'News Notifications': 'Bad',
+    'Social Content': 'Good',
+    'Search': 'Good',
+    'Vertical Video Explore': 'Good',
+    'Fan Content (Community)': 'Good',
+    'Japanese Support': 'Good'
+  },
+  {
+    app: 'The Athletic',
+    Scores: 'Great',
+    'Video Streaming': 'Bad',
+    'Audio Streaming': 'Bad',
+    'Live Activities': 'Bad',
+    'Gameday/Gamecast': 'Good',
+    'Real Time Highlights': 'Bad',
+    'Special Events\n(HRD, ASG, Postseason)': 'Bad',
+    'Video On Demand': 'Bad',
+    'Basic Stats': 'Bad',
+    'Advanced Stats': 'Bad',
+    'Player Info (Stats)': 'Good',
+    'Standings': 'Great',
+    'Schedule': 'Great',
+    'News': 'Great',
+    'Prospect Content': 'Bad',
+    'Favorite Team': 'Great',
+    'Follow Players': 'Bad',
+    'Follow Teams': 'Bad',
+    'Podcasts': 'Great',
+    'Gaming (FTP)': 'Bad',
+    'Betting': 'Good',
+    'Club Information': 'Great',
+    'Game Notifications': 'Good',
+    'Player Notifications': 'Bad',
+    'News Notifications': 'Great',
+    'Social Content': 'Bad',
+    'Search': 'Good',
+    'Vertical Video Explore': 'Bad',
+    'Fan Content (Community)': 'Bad',
+    'Japanese Support': 'Bad'
+  },
+  {
+    app: 'Apple Sports',
+    Scores: 'Great',
+    'Video Streaming': 'Bad',
+    'Audio Streaming': 'Bad',
+    'Live Activities': 'Great',
+    'Gameday/Gamecast': 'Bad',
+    'Real Time Highlights': 'Bad',
+    'Special Events\n(HRD, ASG, Postseason)': 'Bad',
+    'Video On Demand': 'Bad',
+    'Basic Stats': 'Bad',
+    'Advanced Stats': 'Bad',
+    'Player Info (Stats)': 'Bad',
+    'Standings': 'Good',
+    'Schedule': 'Bad',
+    'News': 'Bad',
+    'Prospect Content': 'Bad',
+    'Favorite Team': 'Great',
+    'Follow Players': 'Bad',
+    'Follow Teams': 'Bad',
+    'Podcasts': 'Bad',
+    'Gaming (FTP)': 'Bad',
+    'Betting': 'Bad',
+    'Club Information': 'Bad',
+    'Game Notifications': 'Bad',
+    'Player Notifications': 'Bad',
+    'News Notifications': 'Bad',
+    'Social Content': 'Bad',
+    'Search': 'Bad',
+    'Vertical Video Explore': 'Bad',
+    'Fan Content (Community)': 'Bad',
+    'Japanese Support': 'Bad'
+  }
 ];
 
 function normalizeData(dataArray) {
@@ -147,8 +281,9 @@ export default function MLBComparator() {
   const heatmapData = numeric.map(d => ({ app: d.app, value: d[selectedFeature] }));
 
   // Prepare radar chart for selected app
-  const [selectedApp, setSelectedApp] = useState('MLB');
-  const radarData = FEATURES.map(f => ({ feature: f, value: numeric.find(n => n.app === selectedApp)?.[f] ?? 0 }));
+  const [selectedApps, setSelectedApps] = useState(sampleData.map(d => d.app));
+  const [chartData, setChartData] = useState([]);
+  const radarData = FEATURES.map(f => ({ feature: f, value: numeric.find(n => n.app === selectedApps[0])?.[f] ?? 0 }));
 
   const colorForScore = (s) => {
     switch(s){
@@ -157,6 +292,43 @@ export default function MLBComparator() {
       default: return '#ef4444'; // red for Bad
     }
   }
+
+  // Always assign a fixed color to each app based on its index in sampleData
+  const colors = ['#2563eb', '#10b981', '#f97316', '#ef4444', '#8b5cf6'];
+  const colorForApp = (appName) => {
+    const idx = sampleData.findIndex(d => d.app === appName);
+    return colors[idx % colors.length];
+  };
+
+   useEffect(() => {
+    // Start with an array of objects for each feature
+    const transformedData = FEATURES.map(feature => ({
+      feature: feature,
+    }));
+
+    // Add the score for each selected app to the corresponding feature object
+    selectedApps.forEach(appName => {
+      const appData = sampleData.find(d => d.app === appName);
+      if (appData) {
+        FEATURES.forEach(feature => {
+          transformedData.find(f => f.feature === feature)[appName] = SCORE_MAP[appData[feature]];
+        });
+      }
+    });
+    setChartData(transformedData);
+  }, [selectedApps]);
+
+    const handleCheckboxChange = (appName) => {
+    setSelectedApps(prevSelectedApps => {
+      if (prevSelectedApps.includes(appName)) {
+        // If the app is already selected, remove it
+        return prevSelectedApps.filter(app => app !== appName);
+      } else {
+        // If it's not selected, add it
+        return [...prevSelectedApps, appName];
+      }
+    });
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -172,9 +344,38 @@ export default function MLBComparator() {
         </div>
       </header>
 
+
+      <section className="mt-6 bg-white p-4 my-4 rounded-lg shadow">
+        <h2 className="font-medium mb-2">Full table</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left">
+            <thead>
+              <tr>
+                <th className="px-2 py-1">Feature</th>
+                {data.map(d => (
+                  <th key={d.app} className="px-2 py-1">{d.app}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {FEATURES.map(feature => (
+                <tr key={feature} className="border-t">
+                  <td className="px-2 py-1 font-medium">{feature}</td>
+                  {data.map(d => (
+                    <td key={d.app} className="px-2 py-1">
+                      <span className="px-2 py-1 rounded text-xs text-white" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-2 bg-white p-4 rounded-lg shadow">
-          <h2 className="font-medium mb-2">Heatmap — Feature: {selectedFeature}</h2>
+          <h2 className="font-medium mb-2">Feature: {selectedFeature}</h2>
           <div className="flex gap-4 items-center mb-4">
             <select value={selectedFeature} onChange={e=>setSelectedFeature(e.target.value)} className="border rounded p-2">
               {FEATURES.map(f => <option key={f} value={f}>{f}</option>)}
@@ -197,88 +398,61 @@ export default function MLBComparator() {
           </div>
 
         </div>
+      </section>
 
-        <aside className="bg-white p-4 rounded-lg shadow">
-          <h3 className="font-medium mb-2">Radar — {selectedApp}</h3>
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-4">
+        <aside className="bg-white p-6 rounded-lg shadow">
+          <h3 className="font-medium mb-4 text-lg">Radar Chart</h3>
           <div style={{ width: '100%', height: 360 }}>
             <ResponsiveContainer>
-              <RadarChart data={radarData} outerRadius={110}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="feature" tick={false} />
-                <PolarRadiusAxis angle={30} domain={[0,2]} tickCount={3} />
-                <Radar name={selectedApp} dataKey="value" stroke="#2563eb" fill="#2563eb" fillOpacity={0.3} />
-                <Tooltip formatter={(val)=>LABELS[val]} />
+              <RadarChart data={chartData} outerRadius={110}>
+                <PolarGrid stroke="#e5e7eb" />
+                {/* <PolarAngleAxis dataKey="feature" stroke="#374151" tick={false} /> */}
+                <PolarRadiusAxis domain={[0, 2]} tickCount={3} />
+                {/* Map over the selected apps to render a Radar component for each one */}
+                {selectedApps.map((appName) => (
+                  <Radar
+                    key={appName}
+                    name={appName}
+                    dataKey={appName} // The dataKey now corresponds to the app's name
+                    stroke={colorForApp(appName)}
+                    fill={colorForApp(appName)}
+                    fillOpacity={0.3}
+                  />
+                ))}
+                <Tooltip labelFormatter={(index) => FEATURES[index]}
+                formatter={(value) => LABELS[value] ?? value} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-4">
-            <label className="block text-sm">Select app</label>
-            <select value={selectedApp} onChange={e=>setSelectedApp(e.target.value)} className="border rounded p-2 w-full">
-              {data.map(d => <option key={d.app} value={d.app}>{d.app}</option>)}
-            </select>
+          <div className="mt-6">
+            <label className="block text-sm font-medium mb-2">Apps:</label>
+            {/* Chunk sampleData into columns of 3 */}
+            <div className="flex gap-4">
+              {Array.from({ length: Math.ceil(sampleData.length / 3) }).map((_, colIdx) => (
+                <div key={colIdx} className="flex flex-col gap-2">
+                  {sampleData.slice(colIdx * 3, colIdx * 3 + 3).map((d) => {
+                    const color = selectedApps.includes(d.app) ? colorForApp(d.app) : '#d1d5db';
+                    return (
+                      <label key={d.app} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedApps.includes(d.app)}
+                          onChange={() => handleCheckboxChange(d.app)}
+                          className="rounded text-blue-600 focus:ring-blue-500"
+                        />
+                        <span style={{ display: 'inline-block', width: 16, height: 16, background: color, borderRadius: 3, marginRight: 6 }}></span>
+                        <span className="text-gray-700">{d.app}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
-
         </aside>
       </section>
-
-      <section className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h2 className="font-medium mb-2">Full table</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left">
-            <thead>
-              <tr>
-                <th className="px-2 py-1">App</th>
-                {FEATURES.map(f=> <th key={f} className="px-2 py-1">{f}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map(d=> (
-                <tr key={d.app} className="border-t">
-                  <td className="px-2 py-1 font-medium">{d.app}</td>
-                  {FEATURES.map(f=> (
-                    <td key={f} className="px-2 py-1">
-                      <span className="px-2 py-1 rounded text-xs text-white" style={{background: colorForScore(SCORE_MAP[d[f]] ?? 0)}}>{d[f]}</span>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h2 className="font-medium mb-2">How to generate the data (scrape reviews and classify)</h2>
-        <ol className="list-decimal ml-6 space-y-2">
-          <li>Use a Node script to pull reviews from Google Play and the Apple App Store. Recommended packages: <code>google-play-scraper</code> and <code>app-store-scraper</code> or <code>node-applesearch</code>.</li>
-          <li>Save reviews as CSV with columns: <code>app, rating, review, date</code>.</li>
-          <li>Run a simple keyword classifier (example below) to assign feature-level sentiment: look for keywords per feature and compute per-feature score from review sentiment + rating.</li>
-          <li>Normalize to Bad/Good/Great: e.g. score 0.6 Bad, 0.6-1.4 Good,1.4 Great (tune thresholds).</li>
-          <li>Upload the generated CSV using the Upload button above to populate this UI.</li>
-        </ol>
-
-        <pre className="mt-3 text-sm bg-gray-100 p-3 rounded overflow-x-auto">{`// Example Node script (conceptual)
-
-const gplay = require('google-play-scraper');
-const appstore = require('app-store-scraper');
-const fs = require('fs');
-
-async function fetchGoogle(appId){
-  return await gplay.reviews({ appId, sort: gplay.sort.NEWEST, num: 200 });
-}
-
-async function fetchApple(appId){
-  return await appstore.reviews({ appId, sort: 'mostRecent', num: 200 });
-}
-
-// save reviews as CSV then run a separate analysis script that maps keywords to features
-
-`}</pre>
-
-        <p className="mt-3 text-sm text-gray-600">If you'd like, I can also provide the exact Node scripts to fetch reviews and a small classifier that searches for feature keywords in review text and outputs the CSV used by this app.</p>
-      </section>
-
     </div>
   );
 }
