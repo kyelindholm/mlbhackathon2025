@@ -55,7 +55,7 @@ const sampleData = [
     'Search': 'Bad',
     'Vertical Video Explore': 'Bad',
     'Fan Content (Community)': 'Bad',
-    'Japanese Support': 'Bad'
+    'Japanese Support': 'Great'
   },
   {
     app: 'ESPN',
@@ -278,29 +278,46 @@ export default function MLBComparator() {
 
   const numeric = useMemo(() => normalizeData(data), [data]);
 
-  function handleCSVUpload(file) {
-    Papa.parse(file, {
-      header: true,
-      complete: (res) => {
-        const rows = res.data.filter(r => r.app);
-        // assume CSV columns: app, feature1, feature2, ... with Bad/Good/Great text
-        setData(rows.map(r => {
-          const out = { app: r.app };
-          FEATURES.forEach(f => out[f] = r[f] ?? 'Bad');
-          return out;
-        }));
-      }
-    });
-  }
-
   function exportSampleCSV() {
-    const header = ['app', ...FEATURES];
-    const rows = data.map(d => header.map(h => d[h] ?? (h === 'app' ? d.app : 'Bad')));
-    const csv = [header, ...rows].map(r => r.join(',')).join('\n');
+    // Header: Feature, all apps, Classification, Fan Expectation, Strategic Action
+    const header = ['Feature', ...data.map(d => d.app), 'Classification', 'Fan Expectation', 'Strategic Action'];
+    const rows = FEATURES.map(feature => {
+      const mlbRow = data.find(d => d.app === 'MLB');
+      const mlbScore = mlbRow ? mlbRow[feature] : 'Bad';
+      const others = data.filter(d => d.app !== 'MLB').map(d => d[feature]);
+      const classification = categorizeFeature(mlbScore, others);
+      const fanExpectation = compareWithCompetitors(mlbScore, others);
+      let strategicAction = '';
+      if (classification === 'Exclusive') {
+        if (fanExpectation === 'Exceeds' || fanExpectation === 'Meets') strategicAction = 'Protect & Promote';
+        else if (fanExpectation === 'Underperforms') strategicAction = 'Urgent Fix';
+      } else if (classification === 'Differentiator') {
+        if (fanExpectation === 'Exceeds') strategicAction = 'Double Down';
+        else if (fanExpectation === 'Meets') strategicAction = 'Maintain Edge';
+        else if (fanExpectation === 'Underperforms') strategicAction = 'Recover Advantage';
+      } else if (classification === 'Commodity') {
+        if (fanExpectation === 'Exceeds') strategicAction = 'Efficiency Play';
+        else if (fanExpectation === 'Meets') strategicAction = 'Stay Even';
+        else if (fanExpectation === 'Underperforms') strategicAction = 'Close Gap';
+      } else if (classification === 'Untapped' && fanExpectation === 'Underperforms') {
+        strategicAction = 'Explore Opportunity';
+      }
+      return [
+        feature,
+        ...data.map(d => d[feature]),
+        classification,
+        fanExpectation,
+        strategicAction
+      ];
+    });
+    // Wrap each field in double quotes to handle commas/newlines in feature names
+    const csv = [header, ...rows]
+      .map(r => r.map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'mlb-app-comparator-sample.csv';
+    a.href = url; a.download = 'mlb-app-comparator-table.csv';
     a.click();
   }
 
@@ -361,11 +378,13 @@ export default function MLBComparator() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">Compass</h1>
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-teal-400 drop-shadow-md">
+          Compass
+        </h1>
         <div className="flex items-center gap-3">
           {/* Primary action button */}
           <button
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition"
+            className="px-5 py-2 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
             title="Generate next steps"
           >
             Next Steps
@@ -373,30 +392,19 @@ export default function MLBComparator() {
 
           {/* Secondary action button */}
           <button
-            className="px-4 py-2 bg-gray-100 text-gray-800 font-medium rounded-lg shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 transition"
+            className="px-5 py-2 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
             onClick={exportSampleCSV}
           >
             Download CSV
           </button>
-
-          {/* File upload styled as button */}
-          <label className="relative px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 cursor-pointer transition">
-            Upload CSV
-            <input
-              type="file"
-              accept=".csv,text/csv"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              onChange={(e) => handleCSVUpload(e.target.files[0])}
-            />
-  </label>
-</div>
+        </div>
       </header>
 
 
       <section className="mt-6 bg-white p-4 my-4 rounded-lg shadow">
         <h2 className="font-medium mb-2">Full Table</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left">
+        <div className="overflow-x-auto" style={{minWidth: '1100px'}}>
+          <table className="min-w-full text-left" style={{minWidth: '1100px'}}>
             <thead>
               <tr>
                 <th className="px-2 py-1">Feature</th>
@@ -418,18 +426,18 @@ export default function MLBComparator() {
                 const fanExpectation = compareWithCompetitors(mlbScore, others);
                 let strategicAction = '';
                 if (classification === 'Exclusive') {
-                  if (fanExpectation === 'Exceeds' || fanExpectation === 'Meets') strategicAction = 'Protect & Promote';
-                  else if (fanExpectation === 'Underperforms') strategicAction = 'Urgent Fix';
+                  if (fanExpectation === 'Exceeds' || fanExpectation === 'Meets') strategicAction = '✅ Protect & Promote';
+                  else if (fanExpectation === 'Underperforms') strategicAction = '🔴 Urgent Fix';
                 } else if (classification === 'Differentiator') {
-                  if (fanExpectation === 'Exceeds') strategicAction = 'Double Down';
-                  else if (fanExpectation === 'Meets') strategicAction = 'Maintain Edge';
-                  else if (fanExpectation === 'Underperforms') strategicAction = 'Recover Advantage';
+                  if (fanExpectation === 'Exceeds') strategicAction = '🚀 Double Down';
+                  else if (fanExpectation === 'Meets') strategicAction = '🟢 Maintain Edge';
+                  else if (fanExpectation === 'Underperforms') strategicAction = '🟠 Recover Advantage';
                 } else if (classification === 'Commodity') {
-                  if (fanExpectation === 'Exceeds') strategicAction = 'Efficiency Play';
-                  else if (fanExpectation === 'Meets') strategicAction = 'Stay Even';
-                  else if (fanExpectation === 'Underperforms') strategicAction = 'Close Gap';
+                  if (fanExpectation === 'Exceeds') strategicAction = '⚪ Efficiency Play';
+                  else if (fanExpectation === 'Meets') strategicAction = '⚪ Stay Even';
+                  else if (fanExpectation === 'Underperforms') strategicAction = '🟠 Close Gap';
                 } else if (classification === 'Untapped' && fanExpectation === 'Underperforms') {
-                  strategicAction = 'Explore Opportunity';
+                  strategicAction = '🔵 Explore Opportunity';
                 }
                 return (
                   <tr key={feature} className="border-t">
@@ -455,7 +463,7 @@ export default function MLBComparator() {
                     }>
                       {fanExpectation}
                     </td>
-                    <td className="px-2 py-1">{strategicAction}</td>
+                    <td className="px-2 py-1 whitespace-nowrap">{strategicAction}</td>
                   </tr>
                 );
               })}
