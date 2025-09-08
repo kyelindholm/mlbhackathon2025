@@ -163,7 +163,8 @@ export default function MLBComparator() {
       <header className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">MLB App Comparator</h1>
         <div className="flex items-center gap-2">
-          <button className="btn" onClick={exportSampleCSV}><Download className="w-4 h-4 mr-2"/>Download CSV</button>
+          <button className="btn" title="Generate next steps">Next Steps</button>
+          <button className="btn" onClick={exportSampleCSV}>Download CSV</button>
           <label className="btn">
             Upload CSV
             <input type="file" accept="text/csv" className="hidden" onChange={(e)=>handleCSVUpload(e.target.files[0])} />
