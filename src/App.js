@@ -235,6 +235,34 @@ function normalizeData(dataArray) {
   });
 }
 
+function categorizeFeature(mlb, others) {
+  const mlbScore = SCORE_MAP[mlb] ?? 0;
+  const compScores = others.map((o) => SCORE_MAP[o] ?? 0);
+
+  const compGoodGreat = compScores.filter((s) => s >= 1).length;
+  const totalGoodGreat = compGoodGreat + (mlbScore >= 1 ? 1 : 0);
+
+  if (mlb === "Bad" && totalGoodGreat <= 2) return "Untapped";
+  if ((mlb === "Good" || mlb === "Great") && compGoodGreat === 0) return "Exclusive";
+  if (mlb === "Great" && compScores.every((s) => s < 2)) return "Differentiator";
+  if (totalGoodGreat > 1) return "Commodity";
+
+  return "";
+};
+
+function compareWithCompetitors(mlb, others) {
+  const mlbScore = SCORE_MAP[mlb] ?? 0;
+  const compScores = others.map((o) => SCORE_MAP[o] ?? 0);
+
+  const maxComp = Math.max(...compScores);
+
+  if (mlbScore < maxComp) return "Underperforms";
+  if (mlbScore === maxComp) return "Meets";
+  if (mlbScore > maxComp) return "Exceeds";
+
+  return "";
+};
+
 export default function MLBComparator() {
   const [data, setData] = useState(() => {
     // fill missing apps with Bad defaults if not provided
@@ -294,7 +322,7 @@ export default function MLBComparator() {
   }
 
   // Always assign a fixed color to each app based on its index in sampleData
-  const colors = ['#2563eb', '#10b981', '#f97316', '#ef4444', '#8b5cf6'];
+  const colors = ['#2563eb', '#10b981', '#f97316', '#ef4444', '#c426b7ff', '#f6e75cff'];
   const colorForApp = (appName) => {
     const idx = sampleData.findIndex(d => d.app === appName);
     return colors[idx % colors.length];
@@ -333,20 +361,40 @@ export default function MLBComparator() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">MLB App Comparator</h1>
-        <div className="flex items-center gap-2">
-          <button className="btn" title="Generate next steps">Next Steps</button>
-          <button className="btn" onClick={exportSampleCSV}>Download CSV</button>
-          <label className="btn">
+        <h1 className="text-2xl font-semibold">Compass</h1>
+        <div className="flex items-center gap-3">
+          {/* Primary action button */}
+          <button
+            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition"
+            title="Generate next steps"
+          >
+            Next Steps
+          </button>
+
+          {/* Secondary action button */}
+          <button
+            className="px-4 py-2 bg-gray-100 text-gray-800 font-medium rounded-lg shadow-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 transition"
+            onClick={exportSampleCSV}
+          >
+            Download CSV
+          </button>
+
+          {/* File upload styled as button */}
+          <label className="relative px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 cursor-pointer transition">
             Upload CSV
-            <input type="file" accept="text/csv" className="hidden" onChange={(e)=>handleCSVUpload(e.target.files[0])} />
-          </label>
-        </div>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              onChange={(e) => handleCSVUpload(e.target.files[0])}
+            />
+  </label>
+</div>
       </header>
 
 
       <section className="mt-6 bg-white p-4 my-4 rounded-lg shadow">
-        <h2 className="font-medium mb-2">Full table</h2>
+        <h2 className="font-medium mb-2">Full Table</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full text-left">
             <thead>
@@ -355,26 +403,69 @@ export default function MLBComparator() {
                 {data.map(d => (
                   <th key={d.app} className="px-2 py-1">{d.app}</th>
                 ))}
+                <th className="px-2 py-1">Classification</th>
+                <th className="px-2 py-1">Fan Expectation</th>
+                <th className="px-2 py-1">Strategic Action</th>
               </tr>
             </thead>
             <tbody>
-              {FEATURES.map(feature => (
-                <tr key={feature} className="border-t">
-                  <td className="px-2 py-1 font-medium">{feature}</td>
-                  {data.map(d => (
-                    <td key={d.app} className="px-2 py-1">
-                      <span className="px-2 py-1 rounded text-xs text-white" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
+              {FEATURES.map(feature => {
+                // Find MLB and others' scores for this feature
+                const mlbRow = data.find(d => d.app === 'MLB');
+                const mlbScore = mlbRow ? mlbRow[feature] : 'Bad';
+                const others = data.filter(d => d.app !== 'MLB').map(d => d[feature]);
+                const classification = categorizeFeature(mlbScore, others);
+                const fanExpectation = compareWithCompetitors(mlbScore, others);
+                let strategicAction = '';
+                if (classification === 'Exclusive') {
+                  if (fanExpectation === 'Exceeds' || fanExpectation === 'Meets') strategicAction = 'Protect & Promote';
+                  else if (fanExpectation === 'Underperforms') strategicAction = 'Urgent Fix';
+                } else if (classification === 'Differentiator') {
+                  if (fanExpectation === 'Exceeds') strategicAction = 'Double Down';
+                  else if (fanExpectation === 'Meets') strategicAction = 'Maintain Edge';
+                  else if (fanExpectation === 'Underperforms') strategicAction = 'Recover Advantage';
+                } else if (classification === 'Commodity') {
+                  if (fanExpectation === 'Exceeds') strategicAction = 'Efficiency Play';
+                  else if (fanExpectation === 'Meets') strategicAction = 'Stay Even';
+                  else if (fanExpectation === 'Underperforms') strategicAction = 'Close Gap';
+                } else if (classification === 'Untapped' && fanExpectation === 'Underperforms') {
+                  strategicAction = 'Explore Opportunity';
+                }
+                return (
+                  <tr key={feature} className="border-t">
+                    <td className="px-2 py-1 font-medium">{feature}</td>
+                    {data.map(d => (
+                      <td key={d.app} className="px-2 py-1">
+                        <span className="px-2 py-1 rounded text-xs text-white" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
+                      </td>
+                    ))}
+                    <td className={
+                      "px-2 py-1 " +
+                      (classification === 'Exclusive' ? 'text-yellow-500 font-semibold ' : '') +
+                      (classification === 'Differentiator' ? 'text-green-600 font-semibold ' : '') +
+                      (classification === 'Untapped' ? 'text-gray-400 ' : '')
+                    }>
+                      {classification}
                     </td>
-                  ))}
-                </tr>
-              ))}
+                    <td className={
+                      "px-2 py-1 " +
+                      (fanExpectation === 'Meets' ? 'text-green-400 font-semibold ' : '') +
+                      (fanExpectation === 'Exceeds' ? 'text-green-700 font-semibold ' : '') +
+                      (fanExpectation === 'Underperforms' ? 'text-red-500 font-semibold ' : '')
+                    }>
+                      {fanExpectation}
+                    </td>
+                    <td className="px-2 py-1">{strategicAction}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-2 bg-white p-4 rounded-lg shadow">
+      <section className="mt-6 bg-white p-4 rounded-lg shadow">
+        <div className="w-full max-w-7xl mx-auto">
           <h2 className="font-medium mb-2">Feature: {selectedFeature}</h2>
           <div className="flex gap-4 items-center mb-4">
             <select value={selectedFeature} onChange={e=>setSelectedFeature(e.target.value)} className="border rounded p-2">
@@ -400,12 +491,12 @@ export default function MLBComparator() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 my-4">
-        <aside className="bg-white p-6 rounded-lg shadow">
+      <section className="mt-6 bg-white p-6 rounded-lg shadow">
+        <aside className="w-full max-w-7xl mx-auto">
           <h3 className="font-medium mb-4 text-lg">Radar Chart</h3>
           <div style={{ width: '100%', height: 360 }}>
             <ResponsiveContainer>
-              <RadarChart data={chartData} outerRadius={110}>
+              <RadarChart data={chartData} outerRadius={175}>
                 <PolarGrid stroke="#e5e7eb" />
                 {/* <PolarAngleAxis dataKey="feature" stroke="#374151" tick={false} /> */}
                 <PolarRadiusAxis domain={[0, 2]} tickCount={3} />
@@ -420,8 +511,15 @@ export default function MLBComparator() {
                     fillOpacity={0.3}
                   />
                 ))}
-                <Tooltip labelFormatter={(index) => FEATURES[index]}
-                formatter={(value) => LABELS[value] ?? value} />
+                <Tooltip
+                  labelFormatter={(index) => FEATURES[index]}
+                  formatter={(value) => LABELS[value] ?? value}
+                  itemSorter={(item) => {
+                    switch (item) {
+                      case 'MLB': return 0;
+                    }
+                  }}
+                />
               </RadarChart>
             </ResponsiveContainer>
           </div>
