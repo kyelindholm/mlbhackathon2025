@@ -18,7 +18,7 @@ export default function Header({ exportSampleCSV }) {
           className="px-5 py-2 bg-gradient-to-r from-blue-500 to-teal-400 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-teal-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
           title={onNextStepsPage ? "Go Home" : "Generate next steps"}
         >
-          {onNextStepsPage ? "Home" : "Next Steps"}
+          {onNextStepsPage ? "Home" : "AI Analysis & Next Steps"}
         </button>
 
         {/* Secondary action button */}

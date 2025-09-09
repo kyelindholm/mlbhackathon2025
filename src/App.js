@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import { Radar, RadarChart, PolarGrid, PolarRadiusAxis, ResponsiveContainer, Tooltip} from 'recharts';
 import {FEATURES, APPS, LABELS, SCORE_MAP, sampleData} from './testData';
 import { normalizeData, categorizeFeature, compareWithCompetitors} from "./Utils";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
@@ -136,7 +135,7 @@ export default function App() {
             colorForApp={colorForApp}
             chartData={chartData}
           />}/>
-          <Route path="/next-steps" element={<NextSteps/>} />
+          <Route path="/next-steps" element={<NextSteps />} />
         </Routes>
 
 
