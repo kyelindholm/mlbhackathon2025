@@ -8,6 +8,7 @@ import Home from './pages/HomeContent';
 import NextSteps from './pages/NextSteps';
 import Splash from './pages/Splash';
 import Loading1 from './pages/Loading1';
+import Loading2 from './pages/Loading2';
 
 export default function App() {
   const { appRatings, appFeatures, apps } = useAppData();
@@ -155,6 +156,7 @@ export default function App() {
             />}/>
             <Route path="/next-steps" element={<NextSteps />} />
             <Route path="/loading1" element={<Loading1 />} />
+            <Route path="/loading2" element={<Loading2 />} />
           </Routes>
         </div>
       </Router>

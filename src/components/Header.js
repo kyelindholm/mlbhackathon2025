@@ -10,7 +10,18 @@ export default function Header({ exportSampleCSV }) {
 
   const onNextStepsPage = location.pathname === "/next-steps";
 
-  if (location.pathname === "/splash" || location.pathname === "/loading1") {
+  const HandleGenerate = async () => {
+    try {
+      navigate("/loading2")
+      const markdown = await fetchGeminiResponse(appRatings);
+      sessionStorage.setItem("geminiMarkdown", markdown);
+      navigate("/next-steps");
+    } catch (err) {
+      console.error("Error fetching Gemini response:", err);
+    }
+  };
+
+  if (location.pathname === "/" || location.pathname === "/loading1") {
     return <SplashHeader />;
   } else {
     return (
@@ -23,10 +34,10 @@ export default function Header({ exportSampleCSV }) {
           <button
             onClick={() => {
               if (!onNextStepsPage) {
-                // If not on next steps page, fetch Gemini response
-                fetchGeminiResponse(appRatings);
+                HandleGenerate();
+              } else {
+                navigate("/home");
               }
-              navigate(onNextStepsPage ? "/home" : "/next-steps");
             }}
             className="px-5 py-2 bg-gradient-to-r from-blue-500 to-red-500 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-red-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
             title={onNextStepsPage ? "Go Home" : "Generate next steps"}

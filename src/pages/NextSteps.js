@@ -1,8 +1,22 @@
+import { useEffect, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+
 export default function NextSteps() {
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    const markdown = sessionStorage.getItem("geminiMarkdown");
+    if (markdown) {
+      setContent(markdown);
+    }
+  }, []);
+
   return (
-    <div className="p-6 text-center">
-      <h2 className="text-2xl font-bold mb-4">Next Steps</h2>
-      <p className="text-gray-600">This is the Next Steps page 🚀</p>
+    <div className="prose max-w-none p-6 bg-white rounded-xl shadow-md">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }
