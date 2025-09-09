@@ -1,10 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
-import {FEATURES, APPS, LABELS, SCORE_MAP, sampleData} from './testData';
+import {FEATURES, APPS, SCORE_MAP, sampleData} from './testData';
 import { normalizeData, categorizeFeature, compareWithCompetitors} from "./Utils";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
-import Home from './HomeContent';
-import NextSteps from './NextSteps';
+import Home from './pages/HomeContent';
+import NextSteps from './pages/NextSteps';
+import Splash from './pages/Splash';
+import Loading1 from './pages/Loading1';
 
 export default function App() {
   const [data, setData] = useState(() => {
@@ -123,7 +125,8 @@ export default function App() {
       <div className="p-6 max-w-7xl mx-auto">
         <Header exportSampleCSV={exportSampleCSV} />
         <Routes>
-          <Route path="/" element={
+          <Route path="/" element={<Splash />} />
+          <Route path="/home" element={
           <Home
             data={sampleData}
             colorForScore={colorForScore}
@@ -136,6 +139,8 @@ export default function App() {
             chartData={chartData}
           />}/>
           <Route path="/next-steps" element={<NextSteps />} />
+          <Route path="/loading1" element={<Loading1 />} />
+          <Route path="/splash" element={<Splash />} />
         </Routes>
 
 

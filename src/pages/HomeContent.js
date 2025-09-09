@@ -1,6 +1,6 @@
-import {FEATURES, APPS, LABELS, SCORE_MAP, sampleData} from './testData';
+import {FEATURES, APPS, LABELS, SCORE_MAP, sampleData} from '../testData';
 import { Radar, RadarChart, PolarGrid, PolarRadiusAxis, ResponsiveContainer, Tooltip} from 'recharts';
-import {categorizeFeature, compareWithCompetitors} from "./Utils";
+import {categorizeFeature, compareWithCompetitors} from "../Utils";
 
 export default function Home ({ data, colorForScore, selectedFeature, setSelectedFeature, heatmapData, selectedApps, handleCheckboxChange, colorForApp, chartData }) {
     return (
@@ -48,7 +48,7 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
                         <td className="px-4 py-3 font-semibold text-gray-900">{feature}</td>
                         {data.map(d => (
                             <td key={d.app} className="px-4 py-3">
-                            <span className="px-3 py-2 rounded-full text-xs font-semibold flex items-center justify-center" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
+                            <span className="px-3 py-2 rounded-full shadow-md text-xs font-semibold flex items-center justify-center" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
                             </td>
                         ))}
                         <td className={
@@ -76,36 +76,35 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
             </div>
             </section>
     
-            <section className="mt-6 bg-white p-4 rounded-lg shadow">
-            <div className="w-full max-w-7xl mx-auto">
-                <h2 className="font-bold text-xl mb-4 text-center text-gray-800">Feature: {selectedFeature}</h2>
-                <div className="flex gap-4 items-center mb-4">
-                <select value={selectedFeature} onChange={e=>setSelectedFeature(e.target.value)} className="border rounded p-2">
-                    {FEATURES.map(f => <option key={f} value={f}>{f}</option>)}
-                </select>
-                <div className="flex gap-2 items-center">
-                    <span className="text-sm mr-2">Legend:</span>
-                    <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#ef4444'}}>Bad</div>
-                    <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#f59e0b'}}>Good</div>
-                    <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#16a34a'}}>Great</div>
-                </div>
-                </div>
-    
-                <div className="grid grid-cols-3 gap-3">
-                {heatmapData.map(h => (
-                    <div key={h.app} className="p-3 rounded border flex items-center justify-between">
-                    <div>{h.app}</div>
-                    <div className="px-3 py-1 rounded text-white text-sm" style={{background: colorForScore(h.value)}}>{LABELS[h.value] ?? 'Bad'}</div>
+            <section className="mt-6 bg-white p-6 my-6 rounded-xl shadow-lg border-gray-200">
+                <div className="w-full max-w-7xl mx-auto">
+                    <h2 className="font-bold text-xl mb-4 text-center text-gray-800 bg-gradient-to-r from-blue-50 to-teal-50 border border-gray-200 rounded-lg py-2">Feature: {selectedFeature}</h2>
+                    <div className="flex gap-4 items-center mb-4">
+                    <select value={selectedFeature} onChange={e=>setSelectedFeature(e.target.value)} className="border rounded p-2">
+                        {FEATURES.map(f => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                    <div className="flex gap-2 items-center">
+                        <span className="text-sm mr-2">Legend:</span>
+                        <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#ef4444'}}>Bad</div>
+                        <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#f59e0b'}}>Good</div>
+                        <div className="px-2 py-1 rounded text-white text-xs" style={{background:'#16a34a'}}>Great</div>
                     </div>
-                ))}
+                    </div>
+        
+                    <div className="grid grid-cols-3 gap-3">
+                    {heatmapData.map(h => (
+                        <div key={h.app} className="p-3 rounded border flex items-center justify-between">
+                        <div>{h.app}</div>
+                        <div className="px-3 py-1 rounded text-white text-sm" style={{background: colorForScore(h.value)}}>{LABELS[h.value] ?? 'Bad'}</div>
+                        </div>
+                    ))}
+                    </div>
                 </div>
-    
-            </div>
             </section>
     
-            <section className="mt-6 bg-white p-6 rounded-lg shadow">
+            <section className="mt-6 bg-white p-6 my-6 rounded-xl shadow-lg border-gray-200">
                 <aside className="w-full max-w-7xl mx-auto">
-                    <h3 className="font-bold text-xl mb-4 text-center text-gray-800">Radar Chart</h3>
+                    <h3 className="font-bold text-xl mb-4 text-center text-gray-800 bg-gradient-to-r from-blue-50 to-teal-50 border border-gray-200 rounded-lg py-2">Radar Chart</h3>
                     <div style={{ width: '100%', height: 360 }}>
                     <ResponsiveContainer>
                         <RadarChart data={chartData} outerRadius={175}>
