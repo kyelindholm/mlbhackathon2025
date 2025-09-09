@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import {FEATURES, APPS, SCORE_MAP, sampleData} from './testData';
 import { normalizeData, categorizeFeature, compareWithCompetitors} from "./Utils";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
+import SplashHeader from "./components/SplashHeader";
 import Home from './pages/HomeContent';
 import NextSteps from './pages/NextSteps';
 import Splash from './pages/Splash';
@@ -140,11 +141,7 @@ export default function App() {
           />}/>
           <Route path="/next-steps" element={<NextSteps />} />
           <Route path="/loading1" element={<Loading1 />} />
-          <Route path="/splash" element={<Splash />} />
         </Routes>
-
-
-        
       </div>
     </Router>
   );

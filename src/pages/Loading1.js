@@ -12,21 +12,27 @@ export default function LoadingPage() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const navigate = useNavigate();
 
-     useEffect(() => {
+    useEffect(() => {
         // Change the text every 3 seconds
         const interval = setInterval(() => {
-        setCurrentPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+            setCurrentPhraseIndex((prevIndex) => {
+            if (prevIndex < phrases.length - 1) {
+                return prevIndex + 1;
+            } else {
+                return prevIndex; // stay on the last phrase
+            }
+            });
         }, 3000);
 
         // Redirect after 15 seconds
         const timer = setTimeout(() => {
-        navigate("/home"); // replace with your target page
+            navigate("/home"); // replace with your target page
         }, 15000);
 
         // Cleanup both timer and interval on unmount
         return () => {
-        clearInterval(interval);
-        clearTimeout(timer);
+            clearInterval(interval);
+            clearTimeout(timer);
         };
     }, [navigate, phrases.length]);
 
