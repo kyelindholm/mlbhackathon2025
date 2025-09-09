@@ -14,7 +14,7 @@ export const APPS = [
 export const sampleData = [
   {
     app: 'MLB',
-    Scores: 'Great',
+    'Scores': 'Great',
     'Video Streaming': 'Great',
     'Audio Streaming': 'Great',
     'Live Activities': 'Good',
@@ -47,7 +47,7 @@ export const sampleData = [
   },
   {
     app: 'ESPN',
-    Scores: 'Great',
+    'Scores': 'Great',
     'Video Streaming': 'Bad',
     'Audio Streaming': 'Bad',
     'Live Activities': 'Great',

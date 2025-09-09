@@ -1,0 +1,71 @@
+Here is competitive analysis data in spreadsheet format (array of arrays). The first row defines the column names Please generate a strategy document in the following structure:
+
+Feature names and categories
+Performance ratings for our product vs competitors
+Classification of features (e.g., Commodity, Differentiator, Exclusive, Untapped)
+Current performance vs fan/user expectations
+Strategic action recommendations
+
+Based on this competitive analysis, please create a comprehensive strategy document with the following structure:
+1. STRATEGIC OVERVIEW (2-3 Years)
+
+Analyze our competitive position and identify key strengths/weaknesses
+Define 3-4 core strategic pillars based on the data
+Outline strategic themes by year (Year 1, 2, and 3)
+Focus on protecting advantages, closing gaps, and exploring opportunities
+
+2. 6-MONTH PRIORITY ROADMAP
+Organize into two sections:
+MUST-HAVE PROJECTS (Above the Line):
+
+Select the 3 highest-impact projects that address critical gaps or leverage key advantages
+For each project include:
+
+Clear title with emoji indicator from original classification
+SMART Goal (Specific, Measurable, Achievable, Relevant, Time-bound)
+Scope description with 4-5 key deliverables
+Business impact explanation
+Timeline estimate
+Resource requirements
+
+
+
+BACKLOG PROJECTS (Under the Line):
+
+Select 4-6 additional strategic projects for future consideration
+Use same format as above but with "Estimated Timeline" and "Strategic Value" instead of firm timeline/resources
+Include mix of gap-closing and opportunity-exploration projects
+
+3. SUCCESS METRICS & KPIS
+
+Define primary success metrics (3-4 key measurements)
+Define secondary metrics (3-4 supporting measurements)
+Include specific percentage improvements and targets
+
+4. RESOURCE REQUIREMENTS
+
+High-level team composition needed
+Role breakdown with quantities
+
+5. RISK MITIGATION
+
+Identify 3-4 key risks and mitigation strategies
+
+FORMATTING REQUIREMENTS:
+
+Use markdown format suitable for artifacts
+Include clear headers and subheaders
+Use emoji indicators that match the original classification system
+Make SMART goals bold and specific with measurable targets
+Ensure all projects directly reference features from the uploaded analysis
+Prioritize based on strategic impact, not just competitive gaps
+
+ANALYSIS APPROACH:
+
+Prioritize fixing underperforming commodity features (these hurt retention)
+Protect and enhance exclusive/differentiator advantages
+Explore untapped opportunities for growth
+Consider resource constraints and realistic timelines
+Balance short-term fixes with long-term strategic moves
+
+Please analyze the uploaded document and create a comprehensive strategy following this exact structure and approach.

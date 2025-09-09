@@ -1,7 +1,10 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import SplashHeader from "./SplashHeader";
+import { useAppData } from "../pages/AppDataContext";
+import { fetchGeminiResponse } from "../Utils";
 
 export default function Header({ exportSampleCSV }) {
+  const {appRatings} = useAppData();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -18,7 +21,13 @@ export default function Header({ exportSampleCSV }) {
         <div className="flex items-center gap-3">
        
           <button
-            onClick={() => navigate(onNextStepsPage ? "/home" : "/next-steps")}
+            onClick={() => {
+              if (!onNextStepsPage) {
+                // If not on next steps page, fetch Gemini response
+                fetchGeminiResponse(appRatings);
+              }
+              navigate(onNextStepsPage ? "/home" : "/next-steps");
+            }}
             className="px-5 py-2 bg-gradient-to-r from-blue-500 to-red-500 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-red-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
             title={onNextStepsPage ? "Go Home" : "Generate next steps"}
           >

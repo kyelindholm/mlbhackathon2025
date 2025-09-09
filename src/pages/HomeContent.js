@@ -1,8 +1,8 @@
-import {FEATURES, APPS, LABELS, SCORE_MAP, sampleData} from '../testData';
+import {LABELS, SCORE_MAP} from '../testData';
 import { Radar, RadarChart, PolarGrid, PolarRadiusAxis, ResponsiveContainer, Tooltip} from 'recharts';
 import {categorizeFeature, compareWithCompetitors} from "../Utils";
 
-export default function Home ({ data, colorForScore, selectedFeature, setSelectedFeature, heatmapData, selectedApps, handleCheckboxChange, colorForApp, chartData }) {
+export default function Home ({ data, colorForScore, selectedFeature, setSelectedFeature, heatmapData, selectedApps, handleCheckboxChange, colorForApp, chartData, FEATURES, appRatings}) {
     return (
         <div>
             <section className="mt-6 bg-white p-6 my-6 rounded-xl shadow-lg border-gray-200">
@@ -126,9 +126,7 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
                             labelFormatter={(index) => FEATURES[index]}
                             formatter={(value) => LABELS[value] ?? value}
                             itemSorter={(item) => {
-                            switch (item) {
-                                case 'MLB': return 0;
-                            }
+                            if (item === 'MLB') return -1;
                             }}
                         />
                         </RadarChart>
@@ -137,11 +135,11 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
         
                     <div className="mt-6">
                     <label className="block text-sm font-medium mb-2">Apps:</label>
-                    {/* Chunk sampleData into columns of 3 */}
+                    {/* Chunk appRatings into columns of 3 */}
                     <div className="flex gap-4">
-                        {Array.from({ length: Math.ceil(sampleData.length / 3) }).map((_, colIdx) => (
+                        {Array.from({ length: Math.ceil(appRatings.length / 3) }).map((_, colIdx) => (
                         <div key={colIdx} className="flex flex-col gap-2">
-                            {sampleData.slice(colIdx * 3, colIdx * 3 + 3).map((d) => {
+                            {appRatings.slice(colIdx * 3, colIdx * 3 + 3).map((d) => {
                             const color = selectedApps.includes(d.app) ? colorForApp(d.app) : '#d1d5db';
                             return (
                                 <label key={d.app} className="flex items-center space-x-2 cursor-pointer">
