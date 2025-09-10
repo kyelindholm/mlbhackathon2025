@@ -69,10 +69,10 @@ export default function LoadingPage() {
         border-radius: 50%;
         border: 4px solid transparent; /* base transparent */
         border-top-color: transparent;
-        border-right-color: #1D4ED8; /* blue-600 */
-        border-bottom-color: #DC2626; /* red-600 */
-        border-left-color: #3B82F6; /* blue-500 for subtle gradient effect */
-        background: conic-gradient(#1D4ED8, #DC2626);
+        border-right-color: #3B82F6; /* blue-500 */
+        border-bottom-color: #F97316; /* orange-500 */
+        border-left-color: rgba(0,0,0,0.7); /* black for subtle gradient effect */
+        background: conic-gradient(#3B82F6, #F97316, #000000);
         -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px));
         mask: radial-gradient(farthest-side, transparent calc(100% - 4px), black calc(100% - 4px));
         }

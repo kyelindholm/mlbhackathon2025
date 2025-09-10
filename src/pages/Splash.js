@@ -10,12 +10,12 @@ export default function Splash() {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-6 pt-40">
       {/* Logo */}
-      <img src={logo} alt="MLB Logo" className="w-130 h-80" />
+      <img src={logo} alt="MLB Logo" className="w-250 h-70 m-10" />
 
       {/* Button */}
       <button
         onClick={handleClick}
-        className="px-5 py-2 bg-gradient-to-r from-blue-500 to-red-500 text-white font-semibold rounded-lg shadow-lg hover:from-blue-600 hover:to-red-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
+        className="mt-10 px-10 py-4 bg-black text-white font-semibold rounded-lg border-2 border-blue-500 shadow-md hover:bg-blue-50 hover:text-black hover:border-orange-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition cursor-pointer"
       >
         Run Competitor Analysis
       </button>

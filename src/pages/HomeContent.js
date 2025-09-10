@@ -8,7 +8,7 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
             <section className="mt-6 bg-white p-6 my-6 rounded-xl shadow-lg border-gray-200">
             <h2 className="font-bold text-xl mb-4 text-center text-gray-800">Feature Comparison</h2>
             <div className="overflow-x-auto rounded-lg" style={{minWidth: '1100px'}}>
-                <table className="text-left border-collapse" style={{minWidth: '1100px'}}>
+                <table className="text-left border-separate border border-gray-200 rounded-lg overflow-hidden" style={{minWidth: '1100px'}}>
                 <thead>
                     <tr className="bg-gradient-to-r from-blue-50 to-teal-50 border-b border-gray-200">
                     <th className="px-4 py-3 font-bold text-gray-700">Feature</th>
@@ -48,26 +48,38 @@ export default function Home ({ data, colorForScore, selectedFeature, setSelecte
                         <td className="px-4 py-3 font-semibold text-gray-900">{feature}</td>
                         {data.map(d => (
                             <td key={d.app} className="px-4 py-3">
-                            <span className="px-3 py-2 rounded-full shadow-md text-xs font-semibold flex items-center justify-center" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
+                            <span className="min-w-[6rem] px-3 py-2 rounded-full shadow-md text-xs font-semibold flex items-center justify-center" style={{background: colorForScore(SCORE_MAP[d[feature]] ?? 0)}}>{d[feature]}</span>
                             </td>
-                        ))}
-                        <td className={
-                            "px-2 py-1 " +
-                            (classification === 'Exclusive' ? 'text-yellow-500 font-semibold ' : '') +
-                            (classification === 'Differentiator' ? 'text-green-600 font-semibold ' : '') +
-                            (classification === 'Untapped' ? 'text-gray-400 ' : '')
-                        }>
-                            {classification}
+                                                ))}
+                        <td
+                        className={
+                            "px-2 py-1 text-center align-middle font-semibold " + 
+                            (classification === "Exclusive"
+                            ? "text-yellow-500 "
+                            : classification === "Differentiator"
+                            ? "text-green-600 "
+                            : classification === "Untapped"
+                            ? "text-gray-400 "
+                            : "")
+                        }
+                        >
+                        {classification}
                         </td>
-                        <td className={
-                            "px-2 py-1 " +
-                            (fanExpectation === 'Meets' ? 'text-green-400 font-semibold ' : '') +
-                            (fanExpectation === 'Exceeds' ? 'text-green-700 font-semibold ' : '') +
-                            (fanExpectation === 'Underperforms' ? 'text-red-500 font-semibold ' : '')
-                        }>
-                            {fanExpectation}
+                        <td
+                        className={
+                            "px-2 py-1 text-center align-middle font-semibold " +
+                            (fanExpectation === "Meets"
+                            ? "text-green-400 "
+                            : fanExpectation === "Exceeds"
+                            ? "text-green-700 "
+                            : fanExpectation === "Underperforms"
+                            ? "text-red-500 "
+                            : "")
+                        }
+                        >
+                        {fanExpectation}
                         </td>
-                        <td className="px-2 py-1 whitespace-nowrap">{strategicAction}</td>
+                        <td className="px-2 py-1 text-center align-middle whitespace-nowrap">{strategicAction}</td>
                         </tr>
                     );
                     })}
