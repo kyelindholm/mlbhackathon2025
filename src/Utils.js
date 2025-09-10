@@ -78,22 +78,24 @@ export async function buildAppData() {
 
   const distinctFeatures = [...new Set(features)];
 
+  const priority = { Bad: 1, Good: 2, Great: 3 };
+  const reversePriority = { 1: 'Bad', 2: 'Good', 3: 'Great' };
   const appRatings = [];
-  const priority = { bad: 1, good: 2, great: 3 };
 
   distinctApps.forEach(app => {
     const appObj = { app };
     distinctFeatures.forEach(f => appObj[f] = null);
-    appObj["Scores"] = null;
 
-    const appRows = rows.filter(row => row[8] === app); // only rows for this app
+    const appRows = rows.filter(row => row[8] === app);
+
+    // Initialize a feature rating accumulator
+    const featureScores = {};
+    distinctFeatures.forEach(f => featureScores[f] = []);
 
     appRows.forEach(row => {
       const ratingNum = parseInt(row[1], 10);
-      const sentiment = row[2];
-      let rowFeatures = (row[17] || "").split(",").map(f => f.trim()).filter(f => f.length > 0);
-
-      if (rowFeatures.length === 0) rowFeatures = ["Scores"];
+      const sentiment = row[5];
+      const rowFeatures = (row[17] || "").split(",").map(f => f.trim()).filter(f => f.length > 0);
 
       let qualitative;
       if (ratingNum <= 2 || sentiment === "negative") qualitative = "Bad";
@@ -101,38 +103,39 @@ export async function buildAppData() {
       else qualitative = "Great";
 
       rowFeatures.forEach(feature => {
-        const existing = appObj[feature];
-        if (!existing || priority[qualitative.toLowerCase()] > priority[existing.toLowerCase()]) {
-          appObj[feature] = qualitative;
-        }
+        featureScores[feature].push(priority[qualitative]);
       });
+    });
+
+    // Compute average per feature and assign qualitative rating
+    Object.keys(featureScores).forEach(feature => {
+      const scores = featureScores[feature];
+      if (scores.length > 0) {
+        let avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+        // Apply MLB bump
+        if (app === "MLB") avg += 0.5; 
+
+        // Ensure avg doesn't exceed 3
+        if (avg > 3) avg = 3;
+
+        // Assign qualitative based on thresholds
+        if (avg < 1.5) appObj[feature] = 'Bad';
+        else if (avg < 2.5) appObj[feature] = 'Good';
+        else appObj[feature] = 'Great';
+      } else {
+        appObj[feature] = 'Bad';
+      }
     });
 
     appRatings.push(appObj);
   });
 
-  // Filter out app objects that only have 'Scores' set and all other features are null
-  const filteredAppRatings = appRatings.filter(appObj => {
-    // Get all feature keys (excluding 'app' and 'Scores')
-    const featureKeys = Object.keys(appObj).filter(k => k !== 'app' && k !== 'Scores');
-    // If at least one feature is not null, keep it
-    return featureKeys.some(f => appObj[f] !== null);
-  });
-
-  // Replace any remaining null feature values with 'Bad'
-  const filledAppRatings = filteredAppRatings.map(appObj => {
-    const newObj = { ...appObj };
-    Object.keys(newObj).forEach(key => {
-      if (key !== 'app' && key !== 'Scores' && newObj[key] === null) {
-        newObj[key] = 'Bad';
-      }
-    });
-    return newObj;
-  });
-
-  return {'appRatings': filledAppRatings, 
-          'appFeatures': distinctFeatures,
-          'apps': distinctApps};
+  return {
+    appRatings,
+    appFeatures: distinctFeatures,
+    apps: distinctApps
+  };
 }
 
 export async function fetchGeminiResponse(spreadsheetData) {

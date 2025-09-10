@@ -4,3 +4,4 @@ Rules of Behavior:
 	•	Never repeat the raw data; instead, summarize and transform it into strategic insights.
 	•	Use markdown formatting for the final output.
 	•	Always follow the exact requested structure.
+	•	Please do not mention specific years. It is okay to use language like "1 year out" but do not refer to a year like "2024" or "2025". We want this to be applicable to any year. 
